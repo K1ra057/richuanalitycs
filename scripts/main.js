@@ -1,8 +1,13 @@
 import { checkAuthStatus, handleLogin, handleLogout } from './auth.js';
+import { initTodoManager } from './todomanager.js';
+import { setupNavigation } from './router.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded');
     
+    // Навігація між сторінками
+    setupNavigation();
+
     // Перевіряємо авторизацію
     checkAuthStatus();
 
@@ -21,4 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (topbarLogoutBtn) {
         topbarLogoutBtn.addEventListener('click', handleLogout);
     }
+
+    // Инициализация ToDo менеджера при загрузке страницы
+    initTodoManager();
 });

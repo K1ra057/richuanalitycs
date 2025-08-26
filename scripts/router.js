@@ -1,7 +1,5 @@
 import { setShowPageFunction } from './auth.js';
-import { loadTodos } from './todomanager.js';
-import { loadSalesData, initCharts } from './analytics.js';
-import { loadPeopleData } from './people.js';
+import { initTodoManager } from './todomanager.js';
 
 export function showPage(pageId) {
     console.log('Showing page: ', pageId);
@@ -13,6 +11,11 @@ export function showPage(pageId) {
     const targetPage = document.getElementById(pageId);
     if (targetPage) {
         targetPage.classList.add('active');
+    }
+
+    // Инициализация ToDo менеджера при переходе на страницу
+    if (pageId === 'todo-page') {
+        initTodoManager();
     }
 
     // Прокрутка к верху страницы
@@ -30,16 +33,6 @@ export function setupNavigation() {
             e.preventDefault();
             const pageId = link.dataset.page;
             showPage(pageId);
-
-            // Завантаження даних для відповідної сторінки
-            if (pageId === 'todo-page') {
-                loadTodos();
-            } else if (pageId === 'analytics-page') {
-                loadSalesData();
-                initCharts();
-            } else if (pageId === 'people-page') {
-                loadPeopleData();
-            }
         });
     });
 }

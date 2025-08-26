@@ -14,6 +14,8 @@
             <h1>Sales Dashboard</h1>
             <nav class="topbar-menu">
                 <ul>
+                    <li><a href="#" class="nav-link" data-page="home-page">Головна</a></li>
+                    <li><a href="#" class="nav-link" data-page="todo-page">ToDo Manager</a></li>
                     <li><button class="btn btn-danger logout-btn" id="topbar-logout-btn">Вийти</button></li>
                 </ul>
             </nav>
@@ -46,6 +48,40 @@
                 <div class="welcome-container">
                     <h1>Welcome!</h1>
                     <p>Ласкаво просимо до системи Sales Dashboard</p>
+                </div>
+            </section>
+
+            <!-- ToDo Manager -->
+            <section id="todo-page" class="page">
+                <div class="todo-container">
+                    <header>
+                        <h1>Today</h1>
+                    </header>
+
+                    <section aria-labelledby="design-heading">
+                        <h2 id="design-heading" class="category">DESIGN</h2>
+                        <ul id="design" class="task-list" aria-live="polite"></ul>
+                    </section>
+
+                    <section aria-labelledby="personal-heading">
+                        <h2 id="personal-heading" class="category">PERSONAL</h2>
+                        <ul id="personal" class="task-list" aria-live="polite"></ul>
+                    </section>
+
+                    <section aria-labelledby="house-heading">
+                        <h2 id="house-heading" class="category">HOUSE</h2>
+                        <ul id="house" class="task-list" aria-live="polite"></ul>
+                    </section>
+
+                    <form id="task-form" aria-label="Add new task">
+                        <input type="text" id="task-input" placeholder="Write a task..." required autocomplete="off">
+                        <select id="task-category" aria-label="Select category">
+                            <option value="design">DESIGN</option>
+                            <option value="personal">PERSONAL</option>
+                            <option value="house">HOUSE</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary" aria-label="Add task">Add</button>
+                    </form>
                 </div>
             </section>
         </main>

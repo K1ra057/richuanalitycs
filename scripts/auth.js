@@ -1,15 +1,7 @@
-// Функція для перемикання сторінок
-function showPage(pageId) {
-    console.log('Showing page: ', pageId);
-    
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-    
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-        targetPage.classList.add('active');
-    }
+import { showPage } from './router.js';
+
+export function setShowPageFunction(func) {
+    // Функция теперь импортируется из router.js
 }
 
 export function checkAuthStatus() {

@@ -14,6 +14,7 @@ export function initTodoManager() {
 
     let draggedItem = null;
     let touchTimer = null;
+    let isDragging = false;
 
     // --- Core Functions ---
 
@@ -38,6 +39,7 @@ export function initTodoManager() {
         const li = document.createElement("li");
         li.dataset.id = task.id;
         li.dataset.category = category;
+        li.draggable = true; // Включаем drag and drop для ПК
         if (task.done) {
             li.classList.add("completed");
         }
@@ -68,13 +70,25 @@ export function initTodoManager() {
 
         li.append(checkbox, label, deleteBtn);
 
-        // Touch Listeners for Drag & Drop
+        // Touch Listeners for Drag & Drop (мобильные устройства)
         li.addEventListener("touchstart", handleTouchStart, { passive: false });
         li.addEventListener("touchend", handleTouchEnd);
         li.addEventListener("touchcancel", handleTouchEnd);
 
+        // Mouse Listeners for Drag & Drop (ПК)
+        li.addEventListener("dragstart", handleDragStart);
+        li.addEventListener("dragend", handleDragEnd);
+
         return li;
     };
+
+    // Добавляем обработчики для списков (принимают перетаскиваемые элементы)
+    taskLists.forEach(list => {
+        list.addEventListener("dragover", handleDragOver);
+        list.addEventListener("drop", handleDrop);
+        list.addEventListener("dragenter", handleDragEnter);
+        list.addEventListener("dragleave", handleDragLeave);
+    });
 
     // --- Event Handlers ---
 
@@ -92,24 +106,24 @@ export function initTodoManager() {
         }
     };
 
-    // --- Touch Handlers for Drag & Drop ---
+    // --- Touch Handlers for Drag & Drop (мобильные устройства) ---
 
     function handleTouchStart(e) {
         const li = e.currentTarget;
         if (li.classList.contains('completed')) return;
 
         touchTimer = setTimeout(() => {
-            e.preventDefault(); // Prevent click event after long press
+            e.preventDefault();
             draggedItem = li;
             draggedItem.classList.add("dragging");
             document.addEventListener("touchmove", handleTouchMove, { passive: false });
-        }, 350); // Delay to initiate drag
+        }, 350);
     }
 
     function handleTouchMove(e) {
         clearTimeout(touchTimer);
         if (!draggedItem) return;
-        e.preventDefault(); // Prevent page scroll while dragging
+        e.preventDefault();
 
         const touch = e.touches[0];
         const elementUnder = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -133,6 +147,82 @@ export function initTodoManager() {
         }
         draggedItem.classList.remove("dragging");
         draggedItem = null;
+    }
+
+    // --- Mouse Handlers for Drag & Drop (ПК) ---
+
+    function handleDragStart(e) {
+        draggedItem = this;
+        isDragging = true;
+        setTimeout(() => this.classList.add("dragging"), 0);
+        
+        // Устанавливаем данные для drag and drop
+        e.dataTransfer.setData("text/plain", this.dataset.id);
+        e.dataTransfer.effectAllowed = "move";
+    }
+
+    function handleDragEnd(e) {
+        isDragging = false;
+        this.classList.remove("dragging");
+        
+        // Убираем подсветку со всех списков
+        taskLists.forEach(list => {
+            list.classList.remove("drag-over");
+        });
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        if (!isDragging) return;
+        
+        const targetList = this;
+        const afterElement = getDragAfterElement(targetList, e.clientY);
+        
+        if (draggedItem && draggedItem.parentNode !== targetList) {
+            // Если перетаскиваем между списками
+            if (afterElement) {
+                targetList.insertBefore(draggedItem, afterElement);
+            } else {
+                targetList.appendChild(draggedItem);
+            }
+        }
+        
+        return false;
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        if (!isDragging) return;
+        
+        const targetList = this;
+        targetList.classList.remove("drag-over");
+        
+        // Обновляем порядок задач
+        updateTaskOrder(draggedItem, targetList);
+        
+        return false;
+    }
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        if (!isDragging) return;
+        this.classList.add("drag-over");
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        if (!isDragging) return;
+        
+        // Проверяем, действительно ли мы покидаем список, а не просто переходим на дочерний элемент
+        const rect = this.getBoundingClientRect();
+        if (
+            e.clientX < rect.left || 
+            e.clientX >= rect.right || 
+            e.clientY < rect.top || 
+            e.clientY >= rect.bottom
+        ) {
+            this.classList.remove("drag-over");
+        }
     }
 
     // --- Utility Functions ---
@@ -166,8 +256,11 @@ export function initTodoManager() {
         if (!tasks[targetCategory]) tasks[targetCategory] = [];
         tasks[targetCategory].splice(newIndex, 0, task);
 
+        // Обновляем категорию задачи
+        item.dataset.category = targetCategory;
+        task.category = targetCategory;
+
         saveTasks();
-        renderTasks();
     };
 
     // --- Initialization ---

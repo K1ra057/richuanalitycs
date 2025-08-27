@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Dashboard</title>
     <link rel="stylesheet" href="./styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="./scripts/main.js" defer></script>
 </head>
 <body>
@@ -16,6 +17,7 @@
                 <ul>
                     <li><a href="#" class="nav-link" data-page="home-page">Головна</a></li>
                     <li><a href="#" class="nav-link" data-page="todo-page">ToDo Manager</a></li>
+                    <li><a href="#" class="nav-link" data-page="analytics-page">Sales Analytics</a></li>
                     <li><button class="btn btn-danger logout-btn" id="topbar-logout-btn">Вийти</button></li>
                 </ul>
             </nav>
@@ -58,6 +60,13 @@
                         <h1>Today</h1>
                     </header>
 
+                    <!-- Кнопки фільтрації -->
+                    <div class="todo-filters">
+                        <button class="filter-btn active" data-filter="all">Усі</button>
+                        <button class="filter-btn" data-filter="active">Активні</button>
+                        <button class="filter-btn" data-filter="completed">Виконані</button>
+                    </div>
+
                     <section aria-labelledby="design-heading">
                         <h2 id="design-heading" class="category">DESIGN</h2>
                         <ul id="design" class="task-list" aria-live="polite"></ul>
@@ -82,6 +91,80 @@
                         </select>
                         <button type="submit" class="btn btn-primary" aria-label="Add task">Add</button>
                     </form>
+                </div>
+            </section>
+
+            <!-- Sales Analytics Page -->
+            <section id="analytics-page" class="page">
+                <div class="analytics-container">
+                    <header>
+                        <h1>Sales Analytics</h1>
+                    </header>
+
+                    <!-- Графіки -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Продажі по днях</h3>
+                            <canvas id="sales-by-day-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Ліди по днях</h3>
+                            <canvas id="leads-by-day-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Повторні покупки</h3>
+                            <canvas id="repeat-customers-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Оборот (Revenue)</h3>
+                            <canvas id="revenue-by-month-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Продажі по менеджерах</h3>
+                            <canvas id="sales-by-manager-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Таблиці -->
+                    <div class="tables-section">
+                        <div class="table-card">
+                            <h3>Дохід по менеджерах</h3>
+                            <div class="table-container">
+                                <table id="managers-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Manager</th>
+                                            <th>Orders</th>
+                                            <th>Revenue</th>
+                                            <th>Avg Check</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="table-card">
+                            <h3>Товари з низьким обігом</h3>
+                            <div class="table-container">
+                                <table id="products-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Units</th>
+                                            <th>Revenue</th>
+                                            <th>Turnover</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>

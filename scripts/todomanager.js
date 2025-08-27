@@ -4,6 +4,7 @@ export function initTodoManager() {
     const taskInput = document.getElementById("task-input");
     const taskCategorySelect = document.getElementById("task-category");
     const taskLists = document.querySelectorAll(".task-list");
+    const filterButtons = document.querySelectorAll(".filter-btn");
 
     // State
     const tasks = JSON.parse(localStorage.getItem("tasks")) || {
@@ -15,6 +16,7 @@ export function initTodoManager() {
     let draggedItem = null;
     let touchTimer = null;
     let isDragging = false;
+    let currentFilter = "all";
 
     // --- Core Functions ---
 
@@ -27,7 +29,16 @@ export function initTodoManager() {
             list.innerHTML = "";
             const category = list.id;
             if (tasks[category]) {
-                tasks[category].forEach((task) => {
+                let filteredTasks = tasks[category];
+                
+                // Фільтрація задач
+                if (currentFilter === "active") {
+                    filteredTasks = tasks[category].filter(task => !task.done);
+                } else if (currentFilter === "completed") {
+                    filteredTasks = tasks[category].filter(task => task.done);
+                }
+                
+                filteredTasks.forEach((task) => {
                     const taskElement = createTaskElement(task, category);
                     list.appendChild(taskElement);
                 });
@@ -39,7 +50,7 @@ export function initTodoManager() {
         const li = document.createElement("li");
         li.dataset.id = task.id;
         li.dataset.category = category;
-        li.draggable = true; // Включаем drag and drop для ПК
+        li.draggable = true;
         if (task.done) {
             li.classList.add("completed");
         }
@@ -49,40 +60,53 @@ export function initTodoManager() {
         checkbox.checked = task.done;
         checkbox.id = `task-${task.id}`;
         checkbox.addEventListener("change", () => {
-            task.done = checkbox.checked;
-            li.classList.toggle("completed", task.done);
-            saveTasks();
+            toggleTaskCompletion(task.id, category);
         });
 
         const label = document.createElement("label");
         label.textContent = task.text;
         label.htmlFor = `task-${task.id}`;
+        
+        // Додаємо подвійний клік для редагування
+        label.addEventListener("dblclick", () => {
+            editTask(task.id, category);
+        });
+
+        const editBtn = document.createElement("button");
+        editBtn.innerHTML = "✏️";
+        editBtn.className = "edit-btn";
+        editBtn.setAttribute("aria-label", `Edit task: ${task.text}`);
+        editBtn.addEventListener("click", () => {
+            editTask(task.id, category);
+        });
 
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "X";
+        deleteBtn.innerHTML = "🗑️";
         deleteBtn.className = "delete-btn";
         deleteBtn.setAttribute("aria-label", `Delete task: ${task.text}`);
         deleteBtn.addEventListener("click", () => {
-            tasks[category] = tasks[category].filter(t => t.id !== task.id);
-            saveTasks();
-            renderTasks();
+            deleteTask(task.id, category);
         });
 
-        li.append(checkbox, label, deleteBtn);
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "task-actions";
+        buttonContainer.append(editBtn, deleteBtn);
 
-        // Touch Listeners for Drag & Drop (мобильные устройства)
+        li.append(checkbox, label, buttonContainer);
+
+        // Touch Listeners for Drag & Drop
         li.addEventListener("touchstart", handleTouchStart, { passive: false });
         li.addEventListener("touchend", handleTouchEnd);
         li.addEventListener("touchcancel", handleTouchEnd);
 
-        // Mouse Listeners for Drag & Drop (ПК)
+        // Mouse Listeners for Drag & Drop
         li.addEventListener("dragstart", handleDragStart);
         li.addEventListener("dragend", handleDragEnd);
 
         return li;
     };
 
-    // Добавляем обработчики для списков (принимают перетаскиваемые элементы)
+    // Додаємо обробники для списків
     taskLists.forEach(list => {
         list.addEventListener("dragover", handleDragOver);
         list.addEventListener("drop", handleDrop);
@@ -90,23 +114,87 @@ export function initTodoManager() {
         list.addEventListener("dragleave", handleDragLeave);
     });
 
+    // --- CRUD Operations ---
+
+    const addTask = (text, category) => {
+        if (!text.trim()) return;
+        
+        const newTask = { 
+            id: Date.now(), 
+            text: text.trim(), 
+            done: false,
+            createdAt: new Date().toISOString()
+        };
+        
+        if (!tasks[category]) tasks[category] = [];
+        tasks[category].push(newTask);
+        saveTasks();
+        renderTasks();
+    };
+
+    const editTask = (taskId, category) => {
+        const task = tasks[category].find(t => t.id === taskId);
+        if (!task) return;
+        
+        const newText = prompt("Редагувати задачу:", task.text);
+        if (newText !== null && newText.trim() !== "") {
+            task.text = newText.trim();
+            task.updatedAt = new Date().toISOString();
+            saveTasks();
+            renderTasks();
+        }
+    };
+
+    const deleteTask = (taskId, category) => {
+        if (confirm("Видалити цю задачу?")) {
+            tasks[category] = tasks[category].filter(t => t.id !== taskId);
+            saveTasks();
+            renderTasks();
+        }
+    };
+
+    const toggleTaskCompletion = (taskId, category) => {
+        const task = tasks[category].find(t => t.id === taskId);
+        if (task) {
+            task.done = !task.done;
+            task.updatedAt = new Date().toISOString();
+            saveTasks();
+            renderTasks();
+        }
+    };
+
+    // --- Фільтрація ---
+    
+    const setFilter = (filter) => {
+        currentFilter = filter;
+        
+        // Оновлюємо активну кнопку
+        filterButtons.forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.filter === filter);
+        });
+        
+        renderTasks();
+    };
+
     // --- Event Handlers ---
 
     const handleTaskFormSubmit = (e) => {
         e.preventDefault();
-        const text = taskInput.value.trim();
+        const text = taskInput.value;
         const category = taskCategorySelect.value;
-        if (text) {
-            const newTask = { id: Date.now(), text, done: false };
-            if (!tasks[category]) tasks[category] = [];
-            tasks[category].push(newTask);
-            saveTasks();
-            renderTasks();
-            taskInput.value = "";
+        addTask(text, category);
+        taskInput.value = "";
+        taskInput.focus();
+    };
+
+    const handleFilterClick = (e) => {
+        const filter = e.target.dataset.filter;
+        if (filter) {
+            setFilter(filter);
         }
     };
 
-    // --- Touch Handlers for Drag & Drop (мобильные устройства) ---
+    // --- Touch Handlers for Drag & Drop ---
 
     function handleTouchStart(e) {
         const li = e.currentTarget;
@@ -149,14 +237,12 @@ export function initTodoManager() {
         draggedItem = null;
     }
 
-    // --- Mouse Handlers for Drag & Drop (ПК) ---
+    // --- Mouse Handlers for Drag & Drop ---
 
     function handleDragStart(e) {
         draggedItem = this;
         isDragging = true;
         setTimeout(() => this.classList.add("dragging"), 0);
-        
-        // Устанавливаем данные для drag and drop
         e.dataTransfer.setData("text/plain", this.dataset.id);
         e.dataTransfer.effectAllowed = "move";
     }
@@ -164,8 +250,6 @@ export function initTodoManager() {
     function handleDragEnd(e) {
         isDragging = false;
         this.classList.remove("dragging");
-        
-        // Убираем подсветку со всех списков
         taskLists.forEach(list => {
             list.classList.remove("drag-over");
         });
@@ -179,7 +263,6 @@ export function initTodoManager() {
         const afterElement = getDragAfterElement(targetList, e.clientY);
         
         if (draggedItem && draggedItem.parentNode !== targetList) {
-            // Если перетаскиваем между списками
             if (afterElement) {
                 targetList.insertBefore(draggedItem, afterElement);
             } else {
@@ -196,10 +279,7 @@ export function initTodoManager() {
         
         const targetList = this;
         targetList.classList.remove("drag-over");
-        
-        // Обновляем порядок задач
         updateTaskOrder(draggedItem, targetList);
-        
         return false;
     }
 
@@ -213,7 +293,6 @@ export function initTodoManager() {
         e.preventDefault();
         if (!isDragging) return;
         
-        // Проверяем, действительно ли мы покидаем список, а не просто переходим на дочерний элемент
         const rect = this.getBoundingClientRect();
         if (
             e.clientX < rect.left || 
@@ -256,7 +335,6 @@ export function initTodoManager() {
         if (!tasks[targetCategory]) tasks[targetCategory] = [];
         tasks[targetCategory].splice(newIndex, 0, task);
 
-        // Обновляем категорию задачи
         item.dataset.category = targetCategory;
         task.category = targetCategory;
 
@@ -265,5 +343,8 @@ export function initTodoManager() {
 
     // --- Initialization ---
     taskForm.addEventListener("submit", handleTaskFormSubmit);
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", handleFilterClick);
+    });
     renderTasks();
 }

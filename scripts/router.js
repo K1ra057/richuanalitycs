@@ -13,9 +13,12 @@ export function showPage(pageId) {
         targetPage.classList.add('active');
     }
 
-    // Инициализация ToDo менеджера при переходе на страницу
+    // Ініціалізація ToDo менеджера при переході на сторінку
     if (pageId === 'todo-page') {
-        initTodoManager();
+        // Невелика затримка для гарантії того, що DOM повністю завантажений
+        setTimeout(() => {
+            initTodoManager();
+        }, 50);
     }
 
     // Прокрутка к верху страницы

@@ -1,197 +1,439 @@
-export let salesData = [];
+// Глобальные переменные для хранения данных и графиков
+let salesData = [];
+let charts = {};
 
-export function loadSalesData() {
-    // В реальном приложении здесь был бы fetch к API
-    // Для демонстрации создадим фиктивные данные
-    salesData = [
-        { id: 1, date: '2025-02-01', manager: 'Іван Петренко', product: 'Ноутбук', amount: 25000 },
-        { id: 2, date: '2025-02-02', manager: 'Марія Коваленко', product: 'Монітор', amount: 5000 },
-        { id: 3, date: '2025-02-03', manager: 'Олексій Сидоренко', product: 'Мишка', amount: 500 },
-        { id: 4, date: '2025-02-04', manager: 'Іван Петренко', product: 'Клавіатура', amount: 800 },
-        { id: 5, date: '2025-02-05', manager: 'Марія Коваленко', product: 'Ноутбук', amount: 28000 },
-        { id: 6, date: '2025-02-06', manager: 'Олексій Сидоренко', product: 'Навушники', amount: 1200 },
-        { id: 7, date: '2025-02-07', manager: 'Іван Петренко', product: 'Веб-камера', amount: 900 },
-        { id: 8, date: '2025-02-08', manager: 'Марія Коваленко', product: 'Монітор', amount: 5500 },
-        { id: 9, date: '2025-02-09', manager: 'Олексій Сидоренко', product: 'Ноутбук', amount: 26000 },
-        { id: 10, date: '2025-02-10', manager: 'Іван Петренко', product: 'Планшет', amount: 15000 }
-    ];
+// Основная функция инициализации аналитики
+export function initAnalytics() {
+    console.log('Initializing analytics...');
+    loadSalesData();
+}
+
+// Загрузка данных из JSON файла
+function loadSalesData() {
+    // Показываем индикатор загрузки
+    showLoadingState();
     
-    renderSalesTable();
+    fetch('./data/sales_february_2025.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Предполагаем, что данные находятся в свойстве "sales"
+            salesData = data.sales || [];
+            renderAllCharts();
+            renderAllTables();
+            hideLoadingState();
+        })
+        .catch(error => {
+            console.error('Error loading sales data:', error);
+            hideLoadingState();
+            // В случае ошибки можно показать сообщение пользователю
+            showErrorState();
+        });
+}
+
+// Функции для отрисовки графиков
+function renderAllCharts() {
+    renderSalesByDayChart();
+    renderLeadsByDayChart();
+    renderRepeatCustomersChart();
+    renderRevenueByMonthChart();
+    renderSalesByManagerChart();
+}
+
+// 1. Продажи по дням (линейный график)
+function renderSalesByDayChart() {
+    const ctx = document.getElementById('sales-by-day-chart');
+    if (!ctx) return;
+    
+    // Группируем по дням и суммируем amount
+    const salesByDay = {};
+    salesData.forEach(sale => {
+        if (!salesByDay[sale.date]) {
+            salesByDay[sale.date] = 0;
+        }
+        salesByDay[sale.date] += sale.amount;
+    });
+    
+    // Сортируем по дате
+    const sortedDates = Object.keys(salesByDay).sort();
+    const amounts = sortedDates.map(date => salesByDay[date]);
+    
+    // Уничтожаем предыдущий график, если он существует
+    if (charts.salesByDay) {
+        charts.salesByDay.destroy();
+    }
+    
+    // Создаем новый график
+    charts.salesByDay = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: sortedDates,
+            datasets: [{
+                label: 'Продажі по днях',
+                data: amounts,
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Сума продажів'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Дата'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 2. Лиды по дням (столбчатая диаграмма)
+function renderLeadsByDayChart() {
+    const ctx = document.getElementById('leads-by-day-chart');
+    if (!ctx) return;
+    
+    // Считаем лиды по дням
+    const leadsByDay = {};
+    salesData.forEach(sale => {
+        if (sale.isLead) {
+            if (!leadsByDay[sale.date]) {
+                leadsByDay[sale.date] = 0;
+            }
+            leadsByDay[sale.date]++;
+        }
+    });
+    
+    // Сортируем по дате
+    const sortedDates = Object.keys(leadsByDay).sort();
+    const leadCounts = sortedDates.map(date => leadsByDay[date]);
+    
+    if (charts.leadsByDay) {
+        charts.leadsByDay.destroy();
+    }
+    
+    charts.leadsByDay = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sortedDates,
+            datasets: [{
+                label: 'Ліди по днях',
+                data: leadCounts,
+                backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                borderColor: 'rgba(46, 204, 113, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Кількість лідів'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Дата'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 3. Повторные покупки (круговая диаграмма)
+function renderRepeatCustomersChart() {
+    const ctx = document.getElementById('repeat-customers-chart');
+    if (!ctx) return;
+    
+    // Группируем по customerId и считаем количество покупок
+    const purchasesByCustomer = {};
+    salesData.forEach(sale => {
+        if (!purchasesByCustomer[sale.customerId]) {
+            purchasesByCustomer[sale.customerId] = 0;
+        }
+        purchasesByCustomer[sale.customerId]++;
+    });
+    
+    // Считаем распределение
+    const distribution = {
+        '1 покупка': 0,
+        '2 покупки': 0,
+        '3+ покупки': 0
+    };
+    
+    Object.values(purchasesByCustomer).forEach(count => {
+        if (count === 1) {
+            distribution['1 покупка']++;
+        } else if (count === 2) {
+            distribution['2 покупки']++;
+        } else {
+            distribution['3+ покупки']++;
+        }
+    });
+    
+    if (charts.repeatCustomers) {
+        charts.repeatCustomers.destroy();
+    }
+    
+    charts.repeatCustomers = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(distribution),
+            datasets: [{
+                data: Object.values(distribution),
+                backgroundColor: [
+                    'rgba(52, 152, 219, 0.7)',
+                    'rgba(46, 204, 113, 0.7)',
+                    'rgba(155, 89, 182, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(52, 152, 219, 1)',
+                    'rgba(46, 204, 113, 1)',
+                    'rgba(155, 89, 182, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// 4. Оборот по месяцам (линейный график)
+function renderRevenueByMonthChart() {
+    const ctx = document.getElementById('revenue-by-month-chart');
+    if (!ctx) return;
+    
+    // Группируем по месяцам
+    const monthlyRevenue = {};
+    salesData.forEach(sale => {
+        // Извлекаем месяц из даты (формат "2025-02")
+        const month = sale.date.substring(0, 7);
+        if (!monthlyRevenue[month]) {
+            monthlyRevenue[month] = 0;
+        }
+        monthlyRevenue[month] += sale.amount;
+    });
+    
+    // Сортируем месяцы
+    const sortedMonths = Object.keys(monthlyRevenue).sort();
+    const revenues = sortedMonths.map(month => monthlyRevenue[month]);
+    
+    if (charts.revenueByMonth) {
+        charts.revenueByMonth.destroy();
+    }
+    
+    charts.revenueByMonth = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: sortedMonths,
+            datasets: [{
+                label: 'Оборот по місяцях',
+                data: revenues,
+                borderColor: '#9b59b6',
+                backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Оборот (грн)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Місяць'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 5. Продажи по менеджерам (радарная диаграмма)
+function renderSalesByManagerChart() {
+    const ctx = document.getElementById('sales-by-manager-chart');
+    if (!ctx) return;
+    
+    // Группируем по менеджерам и суммируем amount
+    const salesByManager = {};
+    salesData.forEach(sale => {
+        if (!salesByManager[sale.manager]) {
+            salesByManager[sale.manager] = 0;
+        }
+        salesByManager[sale.manager] += sale.amount;
+    });
+    
+    if (charts.salesByManager) {
+        charts.salesByManager.destroy();
+    }
+    
+    charts.salesByManager = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: Object.keys(salesByManager),
+            datasets: [{
+                label: 'Продажі по менеджерах',
+                data: Object.values(salesByManager),
+                backgroundColor: 'rgba(241, 196, 15, 0.2)',
+                borderColor: 'rgba(241, 196, 15, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(241, 196, 15, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Функции для отрисовки таблиц
+function renderAllTables() {
     renderManagersTable();
     renderProductsTable();
 }
 
-function renderSalesTable() {
-    const container = document.getElementById('sales-table-container');
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    const table = document.createElement('table');
-    table.className = 'sales-table';
-
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>ID</th>
-            <th>Дата</th>
-            <th>Менеджер</th>
-            <th>Продукт</th>
-            <th>Сума</th>
-        </tr>
-    `;
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    salesData.forEach(sale => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${sale.id}</td>
-            <td>${sale.date}</td>
-            <td>${sale.manager}</td>
-            <td>${sale.product}</td>
-            <td>${sale.amount} грн</td>
-        `;
-        tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
-
-    container.appendChild(table);
-}
-
+// 1. Таблица: Доход по менеджерам
 function renderManagersTable() {
-    const container = document.getElementById('managers-table-container');
-    if (!container) return;
-
-    // Группируем продажи по менеджерам
-    const managers = {};
+    const table = document.getElementById('managers-table');
+    if (!table) return;
+    
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
+    
+    // Группируем по менеджерам
+    const managersData = {};
     salesData.forEach(sale => {
-        if (!managers[sale.manager]) {
-            managers[sale.manager] = 0;
+        if (!managersData[sale.manager]) {
+            managersData[sale.manager] = {
+                orders: 0,
+                revenue: 0
+            };
         }
-        managers[sale.manager] += sale.amount;
+        managersData[sale.manager].orders++;
+        managersData[sale.manager].revenue += sale.amount;
     });
-
-    container.innerHTML = '';
-
-    const table = document.createElement('table');
-    table.className = 'sales-table';
-
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>Менеджер</th>
-            <th>Загальний дохід</th>
-        </tr>
-    `;
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    Object.entries(managers).forEach(([manager, amount]) => {
+    
+    // Создаем строки таблицы
+    Object.entries(managersData).forEach(([manager, data]) => {
+        const avgCheck = data.revenue / data.orders;
+        
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${manager}</td>
-            <td>${amount} грн</td>
+            <td>${data.orders}</td>
+            <td>${data.revenue.toLocaleString('uk-UA')} грн</td>
+            <td>${avgCheck.toFixed(2)} грн</td>
         `;
         tbody.appendChild(row);
     });
-    table.appendChild(tbody);
-
-    container.appendChild(table);
 }
 
+// 2. Таблица: Товары с низким оборотом
 function renderProductsTable() {
-    const container = document.getElementById('products-table-container');
-    if (!container) return;
-
-    // Группируем продажи по продуктам
-    const products = {};
+    const table = document.getElementById('products-table');
+    if (!table) return;
+    
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
+    
+    // Группируем по товарам
+    const productsData = {};
     salesData.forEach(sale => {
-        if (!products[sale.product]) {
-            products[sale.product] = 0;
+        if (!productsData[sale.product]) {
+            productsData[sale.product] = {
+                units: 0,
+                revenue: 0
+            };
         }
-        products[sale.product] += sale.amount;
+        productsData[sale.product].units++;
+        productsData[sale.product].revenue += sale.amount;
     });
-
-    container.innerHTML = '';
-
-    const table = document.createElement('table');
-    table.className = 'sales-table';
-
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>Продукт</th>
-            <th>Загальний дохід</th>
-        </tr>
-    `;
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    Object.entries(products).forEach(([product, amount]) => {
+    
+    // Преобразуем в массив и сортируем по revenue (от меньшего к большему)
+    const sortedProducts = Object.entries(productsData)
+        .map(([product, data]) => ({
+            product,
+            units: data.units,
+            revenue: data.revenue,
+            turnover: data.revenue / data.units
+        }))
+        .sort((a, b) => a.revenue - b.revenue);
+    
+    // Создаем строки таблицы (первые 10 товаров с наименьшим оборотом)
+    sortedProducts.slice(0, 10).forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${product}</td>
-            <td>${amount} грн</td>
+            <td>${item.product}</td>
+            <td>${item.units}</td>
+            <td>${item.revenue.toLocaleString('uk-UA')} грн</td>
+            <td>${item.turnover.toFixed(2)} грн</td>
         `;
         tbody.appendChild(row);
     });
-    table.appendChild(tbody);
-
-    container.appendChild(table);
 }
 
-// Додаємо відсутній експорт, щоб не падали імпорти з інших файлів
-let _charts = {};
-
-export function initCharts() {
-    const ChartGlobal = typeof window !== 'undefined' ? window.Chart : null;
-    if (!ChartGlobal) return;
-
-    // Проста агрегація по менеджерах для прикладу
-    const byManager = {};
-    salesData.forEach(s => {
-        byManager[s.manager] = (byManager[s.manager] || 0) + s.amount;
+// Вспомогательные функции
+function showLoadingState() {
+    const chartContainers = document.querySelectorAll('.chart-card, .table-card');
+    chartContainers.forEach(container => {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'loading';
+        loadingDiv.innerHTML = '<div class="loading-spinner"></div>';
+        container.appendChild(loadingDiv);
     });
+}
 
-    const managers = Object.keys(byManager);
-    const amounts = Object.values(byManager);
+function hideLoadingState() {
+    const loadingElements = document.querySelectorAll('.loading');
+    loadingElements.forEach(el => el.remove());
+}
 
-    const chartsMap = [
-        ['sales-chart', managers, amounts],
-        ['leads-chart', ['Ліди'], [salesData.length]],
-        ['repeat-customers-chart', ['Повторні покупки'], [Math.round(salesData.length * 0.3)]],
-        ['revenue-chart', ['Дохід'], [amounts.reduce((a, b) => a + b, 0)]],
-        ['managers-chart', managers, amounts],
-    ];
-
-    chartsMap.forEach(([id, labels, values]) => {
-        const canvas = document.getElementById(id);
-        if (!canvas) return;
-
-        if (_charts[id]) _charts[id].destroy();
-
-        _charts[id] = new ChartGlobal(canvas.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Дані',
-                    data: values,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+function showErrorState() {
+    const containers = document.querySelectorAll('.chart-card, .table-card');
+    containers.forEach(container => {
+        container.innerHTML = '<div class="error-state">Помилка завантаження даних</div>';
     });
 }

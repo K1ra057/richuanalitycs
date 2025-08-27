@@ -1,5 +1,6 @@
 import { setShowPageFunction } from './auth.js';
 import { initTodoManager } from './todomanager.js';
+import { initAnalytics } from './analytics.js';
 
 export function showPage(pageId) {
     console.log('Showing page: ', pageId);
@@ -15,9 +16,15 @@ export function showPage(pageId) {
 
     // Ініціалізація ToDo менеджера при переході на сторінку
     if (pageId === 'todo-page') {
-        // Невелика затримка для гарантії того, що DOM повністю завантажений
         setTimeout(() => {
             initTodoManager();
+        }, 50);
+    }
+    
+    // Ініціалізація Analytics при переході на сторінку
+    if (pageId === 'analytics-page') {
+        setTimeout(() => {п
+            initAnalytics();
         }, 50);
     }
 

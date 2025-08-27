@@ -781,4 +781,11 @@ tr:hover {
     color: #95a5a6;
     font-style: italic;
 }
+/* Error State */
+.error-state {
+    text-align: center;
+    padding: 2rem;
+    color: #e74c3c;
+    font-weight: 500;
+}
 }

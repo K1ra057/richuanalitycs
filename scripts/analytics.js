@@ -30,7 +30,6 @@ function loadSalesData() {
         .catch(error => {
             console.error('Error loading sales data:', error);
             hideLoadingState();
-            // В случае ошибки можно показать сообщение пользователю
             showErrorState();
         });
 }
@@ -40,7 +39,7 @@ function renderAllCharts() {
     renderSalesByDayChart();
     renderLeadsByDayChart();
     renderRepeatCustomersChart();
-    renderRevenueByMonthChart();
+    renderRevenueByDayChart(); // Изменено на по дням
     renderSalesByManagerChart();
 }
 
@@ -78,14 +77,23 @@ function renderSalesByDayChart() {
                 borderColor: '#3498db',
                 backgroundColor: 'rgba(52, 152, 219, 0.1)',
                 tension: 0.4,
-                fill: true
+                fill: true,
+                pointBackgroundColor: '#3498db',
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                pointHoverRadius: 7
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 title: {
                     display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
                 }
             },
             scales: {
@@ -93,15 +101,29 @@ function renderSalesByDayChart() {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Сума продажів'
+                        text: 'Сума продажів (грн)'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
                     }
                 },
                 x: {
                     title: {
                         display: true,
                         text: 'Дата'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
             }
         }
     });
@@ -140,31 +162,54 @@ function renderLeadsByDayChart() {
                 data: leadCounts,
                 backgroundColor: 'rgba(46, 204, 113, 0.7)',
                 borderColor: 'rgba(46, 204, 113, 1)',
-                borderWidth: 1
+                borderWidth: 1,
+                borderRadius: 5,
+                hoverBackgroundColor: 'rgba(46, 204, 113, 0.9)'
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Кількість лідів'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
                     }
                 },
                 x: {
                     title: {
                         display: true,
                         text: 'Дата'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
             }
         }
     });
 }
 
-// 3. Повторные покупки (круговая диаграмма)
+// 3. Повторные покупки (круговая диаграмма) - УЛУЧШЕННАЯ ВЕРСИЯ
 function renderRepeatCustomersChart() {
     const ctx = document.getElementById('repeat-customers-chart');
     if (!ctx) return;
@@ -182,7 +227,8 @@ function renderRepeatCustomersChart() {
     const distribution = {
         '1 покупка': 0,
         '2 покупки': 0,
-        '3+ покупки': 0
+        '3 покупки': 0,
+        '4+ покупки': 0
     };
     
     Object.values(purchasesByCustomer).forEach(count => {
@@ -190,8 +236,10 @@ function renderRepeatCustomersChart() {
             distribution['1 покупка']++;
         } else if (count === 2) {
             distribution['2 покупки']++;
+        } else if (count === 3) {
+            distribution['3 покупки']++;
         } else {
-            distribution['3+ покупки']++;
+            distribution['4+ покупки']++;
         }
     });
     
@@ -199,8 +247,9 @@ function renderRepeatCustomersChart() {
         charts.repeatCustomers.destroy();
     }
     
+    // Используем pie chart вместо doughnut для лучшей читаемости
     charts.repeatCustomers = new Chart(ctx, {
-        type: 'doughnut',
+        type: 'pie',
         data: {
             labels: Object.keys(distribution),
             datasets: [{
@@ -208,80 +257,139 @@ function renderRepeatCustomersChart() {
                 backgroundColor: [
                     'rgba(52, 152, 219, 0.7)',
                     'rgba(46, 204, 113, 0.7)',
-                    'rgba(155, 89, 182, 0.7)'
+                    'rgba(155, 89, 182, 0.7)',
+                    'rgba(241, 196, 15, 0.7)'
                 ],
                 borderColor: [
                     'rgba(52, 152, 219, 1)',
                     'rgba(46, 204, 113, 1)',
-                    'rgba(155, 89, 182, 1)'
+                    'rgba(155, 89, 182, 1)',
+                    'rgba(241, 196, 15, 1)'
                 ],
-                borderWidth: 1
+                borderWidth: 1,
+                hoverOffset: 15
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 15,
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            layout: {
+                padding: {
+                    top: 20,
+                    bottom: 20
                 }
             }
         }
     });
 }
 
-// 4. Оборот по месяцам (линейный график)
-function renderRevenueByMonthChart() {
-    const ctx = document.getElementById('revenue-by-month-chart');
+// 4. Оборот по дням (линейный график) - ИСПРАВЛЕННЫЙ
+function renderRevenueByDayChart() {
+    const ctx = document.getElementById('revenue-by-day-chart');
     if (!ctx) return;
     
-    // Группируем по месяцам
-    const monthlyRevenue = {};
+    // Группируем по дням и суммируем amount
+    const revenueByDay = {};
     salesData.forEach(sale => {
-        // Извлекаем месяц из даты (формат "2025-02")
-        const month = sale.date.substring(0, 7);
-        if (!monthlyRevenue[month]) {
-            monthlyRevenue[month] = 0;
+        if (!revenueByDay[sale.date]) {
+            revenueByDay[sale.date] = 0;
         }
-        monthlyRevenue[month] += sale.amount;
+        revenueByDay[sale.date] += sale.amount;
     });
     
-    // Сортируем месяцы
-    const sortedMonths = Object.keys(monthlyRevenue).sort();
-    const revenues = sortedMonths.map(month => monthlyRevenue[month]);
+    // Сортируем по дате
+    const sortedDates = Object.keys(revenueByDay).sort();
+    const revenues = sortedDates.map(date => revenueByDay[date]);
     
-    if (charts.revenueByMonth) {
-        charts.revenueByMonth.destroy();
+    if (charts.revenueByDay) {
+        charts.revenueByDay.destroy();
     }
     
-    charts.revenueByMonth = new Chart(ctx, {
+    charts.revenueByDay = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: sortedMonths,
+            labels: sortedDates,
             datasets: [{
-                label: 'Оборот по місяцях',
+                label: 'Оборот по днях',
                 data: revenues,
                 borderColor: '#9b59b6',
                 backgroundColor: 'rgba(155, 89, 182, 0.1)',
                 tension: 0.4,
-                fill: true
+                fill: true,
+                pointBackgroundColor: '#9b59b6',
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                pointHoverRadius: 7
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `Оборот: ${context.raw.toLocaleString('uk-UA')} грн`;
+                        }
+                    }
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Оборот (грн)'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
                     }
                 },
                 x: {
                     title: {
                         display: true,
-                        text: 'Місяць'
+                        text: 'Дата'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
             }
         }
     });
@@ -315,14 +423,26 @@ function renderSalesByManagerChart() {
                 backgroundColor: 'rgba(241, 196, 15, 0.2)',
                 borderColor: 'rgba(241, 196, 15, 1)',
                 borderWidth: 2,
-                pointBackgroundColor: 'rgba(241, 196, 15, 1)'
+                pointBackgroundColor: 'rgba(241, 196, 15, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(241, 196, 15, 1)'
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
             scales: {
                 r: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: Math.max(...Object.values(salesByManager)) / 5
+                    }
                 }
             }
         }

@@ -95,79 +95,90 @@
                 </div>
             </section>
 
-            <!-- Sales Analytics Page -->
-            <section id="analytics-page" class="page">
-                <div class="analytics-container">
-                    <header>
-                        <h1>Sales Analytics</h1>
-                    </header>
+          <!-- Sales Analytics Page -->
+        <section id="analytics-page" class="page">
+        <div class="analytics-container">
+        <header>
+            <h1>Sales Analytics</h1>
+            <p class="analytics-subtitle">Аналітика продажів за лютий 2025 року</p>
+        </header>
 
-                    <!-- Графіки -->
-                    <div class="charts-grid">
-                        <div class="chart-card">
-                            <h3>Продажі по днях</h3>
-                            <canvas id="sales-by-day-chart"></canvas>
-                        </div>
-                        
-                        <div class="chart-card">
-                            <h3>Ліди по днях</h3>
-                            <canvas id="leads-by-day-chart"></canvas>
-                        </div>
-                        
-                        <div class="chart-card">
-                            <h3>Повторні покупки</h3>
-                            <canvas id="repeat-customers-chart"></canvas>
-                        </div>
-                        
-                        <div class="chart-card">
-                            <h3>Оборот (Revenue)</h3>
-                            <canvas id="revenue-by-month-chart"></canvas>
-                        </div>
-                        
-                        <div class="chart-card">
-                            <h3>Продажі по менеджерах</h3>
-                            <canvas id="sales-by-manager-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Таблиці -->
-                    <div class="tables-section">
-                        <div class="table-card">
-                            <h3>Дохід по менеджерах</h3>
-                            <div class="table-container">
-                                <table id="managers-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Manager</th>
-                                            <th>Orders</th>
-                                            <th>Revenue</th>
-                                            <th>Avg Check</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div class="table-card">
-                            <h3>Товари з низьким обігом</h3>
-                            <div class="table-container">
-                                <table id="products-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Units</th>
-                                            <th>Revenue</th>
-                                            <th>Turnover</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Графіки -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Продажі по днях</h3>
+                <div class="chart-container">
+                    <canvas id="sales-by-day-chart"></canvas>
                 </div>
-            </section>
+            </div>
+            
+            <div class="chart-card">
+                <h3>Ліди по днях</h3>
+                <div class="chart-container">
+                    <canvas id="leads-by-day-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>Повторні покупки</h3>
+                <div class="chart-container">
+                    <canvas id="repeat-customers-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>Оборот по днях</h3>
+                <div class="chart-container">
+                    <canvas id="revenue-by-day-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>Продажі по менеджерах</h3>
+                <div class="chart-container">
+                    <canvas id="sales-by-manager-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Таблиці -->
+        <div class="tables-section">
+            <div class="table-card">
+                <h3>Дохід по менеджерах</h3>
+                <div class="table-container">
+                    <table id="managers-table">
+                        <thead>
+                            <tr>
+                                <th>Manager</th>
+                                <th>Orders</th>
+                                <th>Revenue</th>
+                                <th>Avg Check</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="table-card">
+                <h3>Товари з низьким обігом</h3>
+                <div class="table-container">
+                    <table id="products-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Units</th>
+                                <th>Revenue</th>
+                                <th>Turnover</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
 
             <!-- People Page -->
             <section id="people-page" class="page">

@@ -1,6 +1,7 @@
 import { setShowPageFunction } from './auth.js';
 import { initTodoManager } from './todomanager.js';
 import { initAnalytics } from './analytics.js';
+import { loadPeopleData } from './people.js';
 
 export function showPage(pageId) {
     console.log('Showing page: ', pageId);
@@ -23,8 +24,15 @@ export function showPage(pageId) {
     
     // Ініціалізація Analytics при переході на сторінку
     if (pageId === 'analytics-page') {
-        setTimeout(() => {п
+        setTimeout(() => {
             initAnalytics();
+        }, 50);
+    }
+    
+    // Завантаження даних People при переході на сторінку
+    if (pageId === 'people-page') {
+        setTimeout(() => {
+            loadPeopleData();
         }, 50);
     }
 

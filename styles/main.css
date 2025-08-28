@@ -890,3 +890,122 @@ tr:hover {
 .table-container::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
+/* Добавьте эти стили в конец файла */
+
+/* Специальные стили для radar chart */
+.radar-chart-container {
+    position: relative;
+    height: 500px; /* Увеличиваем высоту для radar chart */
+    width: 100%;
+}
+
+/* Улучшенные стили для radar chart */
+.chartjs-radar {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+}
+
+/* Стили для информации под графиком */
+.chart-info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    gap: 0.5rem;
+}
+
+.chart-total {
+    font-weight: bold;
+    color: #2c3e50;
+    background-color: #e8f4fc;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.chart-manager-count {
+    color: #7f8c8d;
+    background-color: #f0f0f0;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.chart-note {
+    color: #e67e22;
+    font-style: italic;
+    font-size: 0.8rem;
+    text-align: center;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* Анимации для radar chart */
+@keyframes radarAnimation {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.chartjs-render-monitor {
+    animation: radarAnimation 1.5s ease-out;
+}
+
+/* Адаптивность для radar chart */
+@media (max-width: 768px) {
+    .radar-chart-container {
+        height: 400px;
+    }
+    
+    .chart-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.8rem;
+    }
+    
+    .chart-total,
+    .chart-manager-count {
+        width: 100%;
+    }
+}
+
+/* Улучшенные тултипы для radar chart */
+.chartjs-tooltip {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 12px;
+    font-size: 14px;
+}
+
+/* Легенда radar chart */
+.chartjs-legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    gap: 0.5rem;
+}
+
+.chartjs-legend-item {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+    font-size: 0.8rem;
+}
+
+.chartjs-legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    margin-right: 0.5rem;
+}

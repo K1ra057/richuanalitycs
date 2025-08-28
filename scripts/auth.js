@@ -9,17 +9,24 @@ export function checkAuthStatus() {
     
     const user = localStorage.getItem('user');
     const topbar = document.querySelector('.topbar');
+    const sidebar = document.querySelector('.sidebar');
+    const burgerMenu = document.querySelector('.burger-menu');
     
     if (user) {
         console.log('User is authenticated, redirecting to home page');
         showPage('home-page');
         
         if (topbar) topbar.classList.remove('hidden');
+        // Сайдбар должен быть скрыт по умолчанию, пока не нажмут на бургер
+        if (sidebar) sidebar.classList.remove('active');
+        if (burgerMenu) burgerMenu.classList.remove('active');
     } else {
         console.log('User is not authenticated, showing login page');
         showPage('login-page');
         
         if (topbar) topbar.classList.add('hidden');
+        if (sidebar) sidebar.classList.remove('active');
+        if (burgerMenu) burgerMenu.classList.remove('active');
     }
 }
 

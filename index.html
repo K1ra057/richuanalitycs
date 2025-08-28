@@ -10,9 +10,17 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Topbar -->
+         <!-- Topbar -->
         <header class="topbar hidden">
-            <h1>Sales Dashboard</h1>
+            <div class="topbar-left">
+                <button class="burger-menu" id="burger-menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <h1>Sales Dashboard</h1>
+            </div>
+            
             <nav class="topbar-menu">
                 <ul>
                     <li><a href="#" class="nav-link" data-page="home-page">Головна</a></li>
@@ -23,6 +31,22 @@
                 </ul>
             </nav>
         </header>
+          <!-- Sidebar -->
+      <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Меню</h2>
+        <button class="close-sidebar" id="close-sidebar">✕</button>
+    </div>
+    <a href="#" class="nav-link" data-page="home-page">Головна</a>
+    <a href="#" class="nav-link" data-page="todo-page">ToDo Manager</a>
+    <a href="#" class="nav-link" data-page="analytics-page">Sales Analytics</a>
+    <a href="#" class="nav-link" data-page="people-page">People</a>
+    <button class="btn btn-danger logout-btn" id="sidebar-logout-btn">Вийти</button>
+    </div>
+
+        <!-- Overlay -->
+        <div class="overlay" id="overlay"></div>
+
 
         <!-- Main Content -->
         <main class="main-content" id="main-content">

@@ -4,6 +4,80 @@ import { initAnalytics } from './analytics.js';
 import { loadPeopleData } from './people.js';
 import { setupNavigation, setupRouter } from './router.js';
 
+// Navigation Manager for responsive menu
+class NavigationManager {
+    constructor() {
+        this.burgerMenu = document.getElementById('burger-menu');
+        this.sidebar = document.getElementById('sidebar');
+        this.overlay = document.getElementById('overlay');
+        this.sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+        this.topbarLogoutBtn = document.getElementById('topbar-logout-btn');
+        this.closeSidebarBtn = document.getElementById('close-sidebar');
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.handleResize(); // Initial check
+    }
+    
+    setupEventListeners() {
+        // Burger menu click
+        this.burgerMenu?.addEventListener('click', () => {
+            this.toggleSidebar();
+        });
+        
+        // Close sidebar button click
+        this.closeSidebarBtn?.addEventListener('click', () => {
+            this.closeSidebar();
+        });
+        
+        // Overlay click
+        this.overlay?.addEventListener('click', () => {
+            this.closeSidebar();
+        });
+        
+        // Sidebar links click
+        this.sidebar?.addEventListener('click', (e) => {
+            if (e.target.classList.contains('nav-link')) {
+                this.closeSidebar();
+            }
+        });
+        
+        // Sync logout buttons
+        this.sidebarLogoutBtn?.addEventListener('click', () => {
+            this.topbarLogoutBtn?.click();
+        });
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+            this.handleResize();
+        });
+    }
+    
+    toggleSidebar() {
+        this.burgerMenu.classList.toggle('active');
+        this.sidebar.classList.toggle('active');
+        this.overlay.classList.toggle('active');
+        document.body.style.overflow = this.sidebar.classList.contains('active') ? 'hidden' : '';
+    }
+    
+    closeSidebar() {
+        this.burgerMenu.classList.remove('active');
+        this.sidebar.classList.remove('active');
+        this.overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    handleResize() {
+        // Auto-close sidebar on resize to desktop
+        if (window.innerWidth > 1024) {
+            this.closeSidebar();
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded');
     
@@ -32,28 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
         topbarLogoutBtn.addEventListener('click', handleLogout);
     }
 
-    // Бокова панель
-    const sidebar = document.getElementById('sidebar');
-    const menuToggle = document.getElementById('menu-toggle');
-    const closeSidebar = document.getElementById('close-sidebar');
+    // Инициализация навигации (сайдбар и бургер-меню)
+    new NavigationManager();
 
-    if (menuToggle && sidebar) {
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.add('active');
-        });
+    // Инициализация менеджера задач
+    if (typeof initTodoManager === 'function') {
+        initTodoManager();
     }
-
-    if (closeSidebar && sidebar) {
-        closeSidebar.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-        });
-    }
-
-    // ToDo
-    const todoForm = document.getElementById('todo-form');
-    if (todoForm) {
-        todoForm.addEventListener('submit', addNewTodo);
-    }
-
-    setupTodoFilters();
 });

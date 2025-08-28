@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="app-container">
-         <!-- Topbar -->
+        <!-- Topbar -->
         <header class="topbar hidden">
             <div class="topbar-left">
                 <button class="burger-menu" id="burger-menu">
@@ -27,26 +27,38 @@
                     <li><a href="#" class="nav-link" data-page="todo-page">ToDo Manager</a></li>
                     <li><a href="#" class="nav-link" data-page="analytics-page">Sales Analytics</a></li>
                     <li><a href="#" class="nav-link" data-page="people-page">People</a></li>
+                    <li>
+                        <button class="theme-toggle" id="theme-toggle" aria-label="Переключить тему">
+                            <span class="theme-icon">🌙</span>
+                        </button>
+                    </li>
                     <li><button class="btn btn-danger logout-btn" id="topbar-logout-btn">Вийти</button></li>
                 </ul>
             </nav>
         </header>
-          <!-- Sidebar -->
-      <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <h2>Меню</h2>
-        <button class="close-sidebar" id="close-sidebar">✕</button>
-    </div>
-    <a href="#" class="nav-link" data-page="home-page">Головна</a>
-    <a href="#" class="nav-link" data-page="todo-page">ToDo Manager</a>
-    <a href="#" class="nav-link" data-page="analytics-page">Sales Analytics</a>
-    <a href="#" class="nav-link" data-page="people-page">People</a>
-    <button class="btn btn-danger logout-btn" id="sidebar-logout-btn">Вийти</button>
-    </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Меню</h2>
+                <button class="close-sidebar" id="close-sidebar">✕</button>
+            </div>
+            <a href="#" class="nav-link" data-page="home-page">Головна</a>
+            <a href="#" class="nav-link" data-page="todo-page">ToDo Manager</a>
+            <a href="#" class="nav-link" data-page="analytics-page">Sales Analytics</a>
+            <a href="#" class="nav-link" data-page="people-page">People</a>
+            
+            <!-- Кнопка переключения темы в сайдбаре -->
+            <button class="theme-toggle nav-link" id="sidebar-theme-toggle">
+                <span class="theme-icon">🌙</span>
+                <span>Переключить тему</span>
+            </button>
+            
+            <button class="btn btn-danger logout-btn" id="sidebar-logout-btn">Вийти</button>
+        </div>
 
         <!-- Overlay -->
         <div class="overlay" id="overlay"></div>
-
 
         <!-- Main Content -->
         <main class="main-content" id="main-content">
@@ -119,90 +131,90 @@
                 </div>
             </section>
 
-          <!-- Sales Analytics Page -->
-        <section id="analytics-page" class="page">
-    <div class="analytics-container">
-        <header>
-            <h1>Sales Analytics</h1>
-            <p class="analytics-subtitle">Аналітика продажів за лютий 2025 року</p>
-        </header>
+            <!-- Sales Analytics Page -->
+            <section id="analytics-page" class="page">
+                <div class="analytics-container">
+                    <header>
+                        <h1>Sales Analytics</h1>
+                        <p class="analytics-subtitle">Аналітика продажів за лютий 2025 року</p>
+                    </header>
 
-        <!-- Графіки -->
-        <div class="charts-grid">
-            <div class="chart-card">
-                <h3>Продажі по днях</h3>
-                <div class="chart-container">
-                    <canvas id="sales-by-day-chart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-card">
-                <h3>Ліди по днях</h3>
-                <div class="chart-container">
-                    <canvas id="leads-by-day-chart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-card">
-                <h3>Повторні покупки</h3>
-                <div class="chart-container">
-                    <canvas id="repeat-customers-chart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-card">
-                <h3>Оборот по днях</h3>
-                <div class="chart-container">
-                    <canvas id="revenue-by-day-chart"></canvas>
-                </div>
-            </div>
-            
-            <div class="chart-card">
-                <h3>Продажі по менеджерах</h3>
-                <div class="chart-container">
-                    <canvas id="sales-by-manager-chart"></canvas>
-                </div>
-            </div>
-        </div>
+                    <!-- Графіки -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Продажі по днях</h3>
+                            <div class="chart-container">
+                                <canvas id="sales-by-day-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Ліди по днях</h3>
+                            <div class="chart-container">
+                                <canvas id="leads-by-day-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Повторні покупки</h3>
+                            <div class="chart-container">
+                                <canvas id="repeat-customers-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Оборот по днях</h3>
+                            <div class="chart-container">
+                                <canvas id="revenue-by-day-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Продажі по менеджерах</h3>
+                            <div class="chart-container">
+                                <canvas id="sales-by-manager-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Таблиці -->
-        <div class="tables-section">
-            <div class="table-card">
-                <h3>Дохід по менеджерах</h3>
-                <div class="table-container">
-                    <table id="managers-table">
-                        <thead>
-                            <tr>
-                                <th>Manager</th>
-                                <th>Orders</th>
-                                <th>Revenue</th>
-                                <th>Avg Check</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <!-- Таблиці -->
+                    <div class="tables-section">
+                        <div class="table-card">
+                            <h3>Дохід по менеджерах</h3>
+                            <div class="table-container">
+                                <table id="managers-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Manager</th>
+                                            <th>Orders</th>
+                                            <th>Revenue</th>
+                                            <th>Avg Check</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="table-card">
+                            <h3>Товари з низьким обігом</h3>
+                            <div class="table-container">
+                                <table id="products-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Units</th>
+                                            <th>Revenue</th>
+                                            <th>Turnover</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="table-card">
-                <h3>Товари з низьким обігом</h3>
-                <div class="table-container">
-                    <table id="products-table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Units</th>
-                                <th>Revenue</th>
-                                <th>Turnover</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+            </section>
 
             <!-- People Page -->
             <section id="people-page" class="page">

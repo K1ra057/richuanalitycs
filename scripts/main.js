@@ -78,6 +78,57 @@ class NavigationManager {
     }
 }
 
+// Theme Manager for light/dark mode
+class ThemeManager {
+    constructor() {
+        this.themeToggle = document.getElementById('theme-toggle');
+        this.sidebarThemeToggle = document.getElementById('sidebar-theme-toggle');
+        this.currentTheme = localStorage.getItem('theme') || 'light';
+        
+        this.init();
+    }
+    
+    init() {
+        this.setTheme(this.currentTheme);
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        // Main theme toggle
+        this.themeToggle?.addEventListener('click', () => {
+            this.toggleTheme();
+        });
+        
+        // Sidebar theme toggle
+        this.sidebarThemeToggle?.addEventListener('click', () => {
+            this.toggleTheme();
+        });
+    }
+    
+    setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        this.currentTheme = theme;
+        
+        // Update icon
+        const themeIcon = this.themeToggle?.querySelector('.theme-icon');
+        const sidebarIcon = this.sidebarThemeToggle?.querySelector('.theme-icon');
+        
+        if (theme === 'dark') {
+            if (themeIcon) themeIcon.textContent = '☀️';
+            if (sidebarIcon) sidebarIcon.textContent = '☀️';
+        } else {
+            if (themeIcon) themeIcon.textContent = '🌙';
+            if (sidebarIcon) sidebarIcon.textContent = '🌙';
+        }
+    }
+    
+    toggleTheme() {
+        const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        this.setTheme(newTheme);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded');
     
@@ -108,6 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Инициализация навигации (сайдбар и бургер-меню)
     new NavigationManager();
+
+    // Инициализация управления темами
+    new ThemeManager();
 
     // Инициализация менеджера задач
     if (typeof initTodoManager === 'function') {

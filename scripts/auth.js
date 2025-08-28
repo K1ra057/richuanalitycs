@@ -12,12 +12,15 @@ export function checkAuthStatus() {
     const sidebar = document.querySelector('.sidebar');
     const burgerMenu = document.querySelector('.burger-menu');
     
+    // Применить сохраненную тему перед проверкой авторизации
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
     if (user) {
         console.log('User is authenticated, redirecting to home page');
         showPage('home-page');
         
         if (topbar) topbar.classList.remove('hidden');
-        // Сайдбар должен быть скрыт по умолчанию, пока не нажмут на бургер
         if (sidebar) sidebar.classList.remove('active');
         if (burgerMenu) burgerMenu.classList.remove('active');
     } else {
